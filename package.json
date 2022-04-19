@@ -1,0 +1,32 @@
+{
+  "name": "drivinglog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon src/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://youngH02@github.com/youngH02/drivingLog.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/youngH02/drivingLog/issues"
+  },
+  "homepage": "https://github.com/youngH02/drivingLog#readme",
+  "devDependencies": {
+    "@types/node": "^17.0.24",
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "nodemon": "^2.0.15",
+    "typescript": "^4.6.3"
+  }
+
+
+}
