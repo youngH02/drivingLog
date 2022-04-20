@@ -72,8 +72,19 @@ const server = http.createServer((req,res) =>{
   }
 
     res.statusCode = 200
-    res.setHeader('Content-Type','application/json; encoding=utf-8; charset=utf-8')
+    res.setHeader('Content-Type','application/json; encoding=utf-8;')
     res.end(JSON.stringify(allCarList))
+
+  }
+
+  else if(req.url === '/result' && req.method ==='POST'){
+    req.on('data', (data) =>{
+      console.log(data)
+    }
+    )
+    res.statusCode = 200
+    res.setHeader('Content-Type','application/json; encoding=utf-8;')
+   // res.end(JSON.stringify(data))
 
   }
 
@@ -101,16 +112,6 @@ const server = http.createServer((req,res) =>{
   }
 
 
-/**
- * 게시글 확인
- * 
- * GET /posts
- * GET /posts/:id
- * POST /posts 
- */
-
-
-
 })
 
 const PORT = 3000
@@ -119,16 +120,3 @@ server.listen(PORT, () => {
   console.log(`The server is listening at port: ${PORT}`)
 
 })
-
-
-
-
-/**
- * 게시글 확인
- * 
- * GET /posts
- * GET /posts/:id
- * POST /posts 
- */
-
-
