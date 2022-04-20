@@ -11,21 +11,85 @@
  */
 
 const http = require('http')
-const { ScriptElementKindModifier } = require('typescript')
+const { createNumericLiteral } = require('typescript')
+
+/**
+ * @typedef post
+ * @property {String} id
+ * @property {String} title
+ * @property {String} content
+ */
+
+/** @type {post[]} */
+const posts = [
+  {
+    id : 'first_id',
+    title : 'post title',
+    content : 'hello',
+  },
+  {
+    id : 'send_id',
+    title : 'second post title',
+    content : 'hhh'
+  },
+]
+
+const cars = [
+{
+  carId : '1',
+  carNum : '가1234',
+  carType : 'Avente',
+},
+{
+  carId : '2',
+  carNum : '나1234',
+  carType : 'SONATA',
+},
+{
+  carId : '3',
+  carNum : '다1234',
+  carType : 'Elec',
+}
+]
+
+
 
 const server = http.createServer((req,res) =>{
   const POSTS_ID_REGEX = /^\/posts\/([a-zA-Z0-9-_]+)$/
 
 
   console.log(req.url)
-  if(req.url ==='/posts'&& req.method ==='GET'){
+
+  if(req.url === '/carlist' && req.method ==='GET'){
+
+    const allCarList = {     
+      totalCount : cars.length,
+      cars : cars.map((cars) => ({
+      id : cars.carId,
+      carNum : cars.carNum,
+      carType : cars.carType
+    })),
+  }
+
+    res.statusCode = 200
+    res.setHeader('Content-Type','application/json; encoding=utf-8; charset=utf-8')
+    res.end(JSON.stringify(allCarList))
+
+  }
+
+  else if(req.url ==='/posts'&& req.method ==='GET'){
     res.statusCode = 200
     res.end('OK')
   }
   else if(req.url && POSTS_ID_REGEX.test(req.url)){
-    console.log(POSTS_ID_REGEX.exec(req.url))
+    const regexResult = POSTS_ID_REGEX.exec(req.url) 
+    if (regexResult){
+      const postID = regexResult[1]
+      console.log(postID)
+      res.end('rlawhdals    ')
+    } 
     res.statusCode = 200
-    res.end('input id')
+    //res.end(postID)
   }
   else if(req.url === '/posts' && req.method == 'POST'){
 
