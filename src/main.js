@@ -11,7 +11,7 @@
  */
 
 const http = require('http')
-const { createNumericLiteral } = require('typescript')
+const { createNumericLiteral, collapseTextChangeRangesAcrossMultipleVersions } = require('typescript')
 
 /**
  * @typedef post
@@ -78,13 +78,28 @@ const server = http.createServer((req,res) =>{
   }
 
   else if(req.url === '/result' && req.method ==='POST'){
+    req.setEncoding('utf-8')
+
     req.on('data', (data) =>{
-      console.log(data)
-    }
-    )
+      const body = JSON.parse(data)
+   //   console.log(`body ${body}`)
+      cars.push({
+        carId : body.carId,
+        carNum : body.carNum,
+        carType : body.carType
+      })
+    //  console.log(cars)
+    })
+   // setTimeout(() => { console.log(cars)}, 3000);
+
+    //console.log(cars)
     res.statusCode = 200
     res.setHeader('Content-Type','application/json; encoding=utf-8;')
-   // res.end(JSON.stringify(data))
+    setTimeout(() => { 
+      console.log(cars)
+      res.end(JSON.stringify(cars))
+    }, 3000);
+    
 
   }
 
