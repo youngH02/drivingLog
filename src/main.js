@@ -11,7 +11,53 @@
  */
 
 const http = require('http')
-const { createNumericLiteral, collapseTextChangeRangesAcrossMultipleVersions } = require('typescript')
+const {routes}  = require('./api')
+const fs = require('fs')
+
+/**@returns {Promise<Post[]>} */
+async function getPost(){
+  const json = await   fs.promises.readFile('database.json','utf-8')
+  return JSON.parse(json).posts
+
+}
+
+const server = http.createServer((req,res) =>{
+  async function main(){
+    const route = routes.find(_route => 
+      req.url
+      && req.method
+      && _route.url.test(req.url)
+      && _route.method === req.method
+    )
+  
+    if(!route){
+      res.statusCode = 404
+      res.end('Not Foud')
+      return
+    }
+   
+    const result = await route.callback()
+    res.statusCode = result.statusCode
+    
+    if(typeof result.body === 'string'){
+      res.end(result.body)
+    }else{
+      res.setHeader('Content-Type','application/json; encoding=utf-8;')
+      res.end(JSON.stringify(result.body))
+    }
+
+
+
+    
+
+
+  }
+
+main()
+
+
+
+})
 
 /**
  * @typedef post
@@ -54,80 +100,87 @@ const cars = [
 
 
 
-const server = http.createServer((req,res) =>{
-  const POSTS_ID_REGEX = /^\/posts\/([a-zA-Z0-9-_]+)$/
+// const server = http.createServer((req,res) =>{
+//   const POSTS_ID_REGEX = /^\/posts\/([a-zA-Z0-9-_]+)$/
 
 
-  console.log(req.url)
+//   console.log(req.url)
 
-  if(req.url === '/carlist' && req.method ==='GET'){
+//   if(req.url === '/carlist' && req.method ==='GET'){
 
-    const allCarList = {     
-      totalCount : cars.length,
-      cars : cars.map((cars) => ({
-      id : cars.carId,
-      carNum : cars.carNum,
-      carType : cars.carType
-    })),
-  }
+//     const allCarList = {     
+//       totalCount : cars.length,
+//       cars : cars.map((cars) => ({
+//       id : cars.carId,
+//       carNum : cars.carNum,
+//       carType : cars.carType
+//     })),
+//   }
 
-    res.statusCode = 200
-    res.setHeader('Content-Type','application/json; encoding=utf-8;')
-    res.end(JSON.stringify(allCarList))
+//     res.statusCode = 200
+//     res.setHeader('Content-Type','application/json; encoding=utf-8;')
+//     res.end(JSON.stringify(allCarList))
 
-  }
+//   }
 
-  else if(req.url === '/result' && req.method ==='POST'){
-    req.setEncoding('utf-8')
+//   else if(req.url === '/result' && req.method ==='POST'){
+//     req.setEncoding('utf-8')
 
-    req.on('data', (data) =>{
-      const body = JSON.parse(data)
-   //   console.log(`body ${body}`)
-      cars.push({
-        carId : body.carId,
-        carNum : body.carNum,
-        carType : body.carType
-      })
-    //  console.log(cars)
-    })
-   // setTimeout(() => { console.log(cars)}, 3000);
+//     req.on('data', (data) =>{
+      
+//       /**
+//        * @typedef createCar
+//        * @property {string} carId
+//        * @property {string} carNum
+//        * @property {String} carType        
+//        */
 
-    //console.log(cars)
-    res.statusCode = 200
-    res.setHeader('Content-Type','application/json; encoding=utf-8;')
-    setTimeout(() => { 
-      console.log(cars)
-      res.end(JSON.stringify(cars))
-    }, 3000);
+//       /**@type {createCar} */
+//       const body = JSON.parse(data)
+//       cars.push({
+//         carId : body.carId.toLowerCase().replace(/\s/g,'_'),
+//         carNum : body.carNum,
+//         carType : body.carType
+        
+//       })
+//     res.statusCode = 200
+//     res.setHeader('Content-Type','application/json; encoding=utf-8;')
+//     res.end(JSON.stringify(cars))
+//     console.log(cars)
+//     })
+//    // setTimeout(() => { console.log(cars)}, 3000);
+
+//     //console.log(cars)
     
 
-  }
 
-  else if(req.url ==='/posts'&& req.method ==='GET'){
-    res.statusCode = 200
-    res.end('OK')
-  }
-  else if(req.url && POSTS_ID_REGEX.test(req.url)){
-    const regexResult = POSTS_ID_REGEX.exec(req.url) 
-    if (regexResult){
-      const postID = regexResult[1]
-      console.log(postID)
-      res.end('rlawhdals    ')
-    } 
-    res.statusCode = 200
-    //res.end(postID)
-  }
-  else if(req.url === '/posts' && req.method == 'POST'){
+//   }
 
-  }
-  else{ 
-    res.statusCode = 404
-    res.end('NOT FOUND')
+//   else if(req.url ==='/posts'&& req.method ==='GET'){
+//     res.statusCode = 200
+//     res.end('OK')
+//   }
+//   else if(req.url && POSTS_ID_REGEX.test(req.url)){
+//     const regexResult = POSTS_ID_REGEX.exec(req.url) 
+//     if (regexResult){
+//       const postID = regexResult[1]
+//       console.log(postID)
+//       res.end('rlawhdals    ')
+//     } 
+//     res.statusCode = 200
+//     //res.end(postID)
+//   }
+//   else if(req.url === '/posts' && req.method == 'POST'){
 
-  }
+//   }
+//   else{ 
+//     res.statusCode = 404
+//     res.end('NOT FOUND')
+
+//   }
 
 
-})
+// })
 
 const PORT = 3000
 

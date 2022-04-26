@@ -1,0 +1,14 @@
+{
+"posts" : [
+  {
+    "id" : "first_id",
+    "title" : "post title",
+    "content" : "hello"
+  },
+  {
+    "id" : "send_id",
+    "title" : "second post title",
+    "content" : "hhh"
+  }
+]
+}
