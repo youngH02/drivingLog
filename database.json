@@ -10,5 +10,37 @@
     "title" : "second post title",
     "content" : "hhh"
   }
-]
-}
+],
+  "cars" : [
+    {
+      "carID" : "first_id",
+      "carNum" : "가123",
+      "carType" : "sonata"
+    },
+    {
+      "carID" : "second_id",
+      "carNum" : "나123",
+      "carType" : "avente"
+    }
+  ], 
+  "users" :[
+    {
+      "userID" : "11111",
+      "userName" : "김종민"
+    },
+    {
+      "userID" :"2222",
+      "userName" : "박지영"
+    }
+  ],
+  "use_history" : [
+    {
+      "date" : "2022-04-26",
+      "start_position" : "마곡",
+      "end_position" : "상암",
+      "distance" : null,
+      "time_minutes" : "",
+      "avg_speed" : ""
+    }
+  ]
+  }

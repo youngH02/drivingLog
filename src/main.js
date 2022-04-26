@@ -3,101 +3,64 @@
 
 //프레임워크 없이 간단한 토이프로젝트 웹서버 만들기
 
-/**
- * 블로그 포스팅 서비스
- * - 로컬 파일을 데이터 베이스로 활용(JSON)
- * - 인증 로직은 넣지 않음
- * - RestfullAPI 사용
- */
+//const http = require('http')
+import http from "http"
+//const {  routes } = require('./api.js')
+//const {  routes } = require('./createDB.mjs')
+import routes from "./api.js"
 
-const http = require('http')
-const {routes}  = require('./api')
-const fs = require('fs')
+const server = http.createServer((req, res) => {
+  const URL_REGEX = /^\/([a-zA-Z0-9-_]+)\/([a-zA-Z0-9-_]+)$/
 
-/**@returns {Promise<Post[]>} */
-async function getPost(){
-  const json = await   fs.promises.readFile('database.json','utf-8')
-  return JSON.parse(json).posts
-
-}
-
-const server = http.createServer((req,res) =>{
-  async function main(){
-    const route = routes.find(_route => 
-      req.url
-      && req.method
-      && _route.url.test(req.url)
-      && _route.method === req.method
+  async function main() {
+    const route = routes.find(_route =>
+      req.url &&
+      req.method &&
+      _route.url.test(req.url) &&
+      _route.method === req.method
     )
-  
-    if(!route){
+
+    if (!req.url || !route) {
       res.statusCode = 404
-      res.end('Not Foud')
+      res.end('Not Found')
       return
     }
-   
-    const result = await route.callback()
-    res.statusCode = result.statusCode
-    
-    if(typeof result.body === 'string'){
+
+    const regexResult = route.url.exec(req.url)
+    if (!regexResult) {
+      res.statusCode = 404
+      res.end('상세 URL 없음')
+      return
+    }
+
+    /** @type {Object.<string,*> | undefined} */
+    const reqbody = req.headers['content-type'] === 'application/json' && await new Promise(resolve => {
+      req.setEncoding('utf-8')
+      req.on('data', data => {
+        try{
+          resolve(JSON.parse(data))
+        }catch{
+          console.log("Error!!!")
+         // rejects(new Error("Ill-formed json"))
+        }
+        
+      })
+    }) || undefined
+
+    const result = await route.callback(regexResult, reqbody)
+    //res.statusCode = result.statusCode
+
+    if (typeof result.body === 'string') {
       res.end(result.body)
-    }else{
-      res.setHeader('Content-Type','application/json; encoding=utf-8;')
+    } else {
+      res.setHeader('Content-Type', 'application/json; encoding=utf-8;')
       res.end(JSON.stringify(result.body))
     }
 
-
-
-    
-
-
   }
-
-main()
-
-
+  main()
 
 })
-
-/**
- * @typedef post
- * @property {String} id
- * @property {String} title
- * @property {String} content
- */
-
-/** @type {post[]} */
-const posts = [
-  {
-    id : 'first_id',
-    title : 'post title',
-    content : 'hello',
-  },
-  {
-    id : 'send_id',
-    title : 'second post title',
-    content : 'hhh'
-  },
-]
-
-const cars = [
-{
-  carId : '1',
-  carNum : '가1234',
-  carType : 'Avente',
-},
-{
-  carId : '2',
-  carNum : '나1234',
-  carType : 'SONATA',
-},
-{
-  carId : '3',
-  carNum : '다1234',
-  carType : 'Elec',
-}
-]
-
 
 
 // const server = http.createServer((req,res) =>{
@@ -127,7 +90,7 @@ const cars = [
 //     req.setEncoding('utf-8')
 
 //     req.on('data', (data) =>{
-      
+
 //       /**
 //        * @typedef createCar
 //        * @property {string} carId
@@ -141,7 +104,7 @@ const cars = [
 //         carId : body.carId.toLowerCase().replace(/\s/g,'_'),
 //         carNum : body.carNum,
 //         carType : body.carType
-        
+
 //       })
 //     res.statusCode = 200
 //     res.setHeader('Content-Type','application/json; encoding=utf-8;')
@@ -151,7 +114,7 @@ const cars = [
 //    // setTimeout(() => { console.log(cars)}, 3000);
 
 //     //console.log(cars)
-    
+
 
 
 //   }
