@@ -30,6 +30,38 @@
 import { join, dirname } from 'path'
 import { Low, JSONFile } from 'lowdb'
 import { fileURLToPath } from 'url'
+import multer from 'multer'
+
+//const spawn = require('child_process');
+import {spawn} from 'child_process'
+
+const uploadImg = multer({dest: 'img/'})
+
+
+
+
+
+//OCR import
+//const tesseract = require("node-tesseract-ocr")
+import tesseract from 'node-tesseract-ocr'
+
+//1,3 (3, 13) (0,7)
+const config = {
+  lang: "kor",
+  oem: 1, 
+  psm: 3, 
+}
+///Users/jyoung/study/drivingLog/src/numb.jpeg
+tesseract.recognize("/Users/jyoung/study/drivingLog/src/numb.jpeg", config)
+  .then(text => {
+    console.log("Result:", text, "end")
+  })
+  .catch(error => {
+    console.log(error.message)
+  })
+
+  //
+
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -94,8 +126,8 @@ async function getCars(){
 
 /**@type {Route[]} */
 const routes = [
-  
-  {
+
+  {/**http GET localhost:3000/cars **/
     url: /^\/cars$/,
     method: 'GET',
     callback: async () => ({
@@ -103,6 +135,26 @@ const routes = [
         body: await getCars(), 
     }),
     },
+  {/**http GET localhost:3000/imgs **/
+  url: /^\/imgs$/,
+  method: 'GET',
+  callback: async (_, body) => {
+  console.log("API----------")
+  console.log(body)
+  uploadImg.single('img')
+  
+  const result = await tesseract.recognize("/Users/jyoung/study/drivingLog/src/numb.jpeg", config)
+  
+
+    
+  return {
+      statusCode: 200,
+      body : result
+    
+
+
+  }},
+  },
   {
     url: /^\/posts\/([a-zA-Z0-9-_]+)$/,
     method: 'GET',
@@ -179,19 +231,40 @@ const routes = [
 
     }
     },
-    {
-      url: /^\/test$/,
+    {/**http POST localhost:3000/test dis=500 time=10 --print=hHbB */
+      url: /^\/test\//,
       method: 'POST',
       callback: async (_, body) => {
-        console.log(body)
-  
+        //console.log(body)
+        let base64DecodedText
         if(!body){
           return{
             statusCode :400,
             body:"요청잘못됨"
           }
         }
-  
+        // 1. child-process모듈의 spawn 취득
+        //const spawn = require('child_process').spawn;
+
+        // 2. spawn을 통해 "python 파이썬파일.py" 명령어 실행
+        const result = await spawn('python3', ['/Users/jyoung/study/drivingLog/src/recog.py'])
+
+        // 3. stdout의 'data'이벤트리스너로 실행결과를 받는다.
+        await result.stdout.on('data', function(data) {
+            console.log(data.toString());
+        });
+
+        // 4. 에러 발생 시, stderr의 'data'이벤트리스너로 실행결과를 받는다.
+        result.stderr.on('data', function(data) {
+            console.log(data.toString());
+        });
+        
+        const img_to_text = await tesseract.recognize("/Users/jyoung/study/drivingLog/src/numb3.jpeg", config)
+        console.log('imgtoTXT',img_to_text)
+        //console.log('인코딩된 이미지', body.image)
+        //base64DecodedText = Buffer.from(body.image, "base64").toString('utf8');
+        //console.log("Base64 Decoded Text : ", base64DecodedText);
+
         const testInput = {
           distance : body.dis,
           time : body.time,
@@ -202,7 +275,7 @@ const routes = [
         console.log('=====')
         return {
           statusCode:200,
-          body : testInput
+          body : testInput, "text" : img_to_text
         }
   
       }

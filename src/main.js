@@ -8,9 +8,14 @@ import http from "http"
 //const {  routes } = require('./api.js')
 //const {  routes } = require('./createDB.mjs')
 import routes from "./api.js"
+//import convert from "./convertImg.js"
 
 const server = http.createServer((req, res) => {
   const URL_REGEX = /^\/([a-zA-Z0-9-_]+)\/([a-zA-Z0-9-_]+)$/
+  console.log(req.headers)
+  console.log(req.url)
+  //console.log(data)
+
 
   async function main() {
     const route = routes.find(_route =>
@@ -38,6 +43,8 @@ const server = http.createServer((req, res) => {
       req.setEncoding('utf-8')
       req.on('data', data => {
         try{
+          //console.log(data)
+          //console.log('--------')
           resolve(JSON.parse(data))
         }catch{
           console.log("Error!!!")
@@ -45,8 +52,10 @@ const server = http.createServer((req, res) => {
         }
         
       })
+   
     }) || undefined
 
+    console.log("---",reqbody)
     const result = await route.callback(regexResult, reqbody)
     //res.statusCode = result.statusCode
 
